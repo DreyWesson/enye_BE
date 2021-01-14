@@ -13,18 +13,29 @@ app.get("/", (req, res) => {
   res.send("Hello, Enye");
 });
 
-app.get("/api/rates", (req, res) => {
+app.get("/api/rates", async (req, res) => {
   try {
-    const { base, currency, date } = req.query;
+    let { base, currency } = req.query;
 
-    const apiUrl = base
-      ? `https://api.exchangeratesapi.io/latest?base=${base}&currency=${currency}`
-      : "https://api.exchangeratesapi.io/latest";
-    showData(apiUrl);
-
-    async function showData(api) {
+    // Check if query parameters were passed
+    if (base && currency) {
+      const api = `https://api.exchangeratesapi.io/latest?base=${base}&currency=${currency}`;
       const { data } = await axios.get(api);
-      res.status(201).json(data);
+
+      // split currencies into an array
+      let arrOfCurrencies = currency.split(",");
+
+      const filtered = Object.keys(data.rates)
+        .filter((key) => arrOfCurrencies.includes(key))
+        .reduce((obj, key) => {
+          obj[key] = data.rates[key];
+          return obj;
+        }, {});
+      return res.status(201).json({ ...data, rates: filtered });
+    } else {
+      const api = "https://api.exchangeratesapi.io/latest";
+      const { data } = await axios.get(api);
+      return res.status(201).json(data);
     }
   } catch (err) {
     res.status(400).json({ message: err.message });
