@@ -10,38 +10,41 @@ app.use(morgan("short"));
 
 // Routes
 app.get("/", (req, res) => {
-  res.send("Hello, Enye");
+  res.send("Hello, Enye BACKEND");
 });
 
 app.get("/api/rates", async (req, res) => {
   try {
     let { base, currency } = req.query;
 
-    // Check if query parameters were passed
-    if (base && currency) {
-      const api = `https://api.exchangeratesapi.io/latest?base=${base}&currency=${currency}`;
-      const { data } = await axios.get(api);
-
-      // split currencies into an array
-      let arrOfCurrencies = currency.split(",");
-
-      const filtered = Object.keys(data.rates)
-        .filter((key) => arrOfCurrencies.includes(key))
+    function filterQuery(arr, data) {
+      return Object.keys(data)
+        .filter((key) => arr.includes(key))
         .reduce((obj, key) => {
-          obj[key] = data.rates[key];
+          obj[key] = data[key];
           return obj;
         }, {});
-      return res.status(201).json({ ...data, rates: filtered });
+    }
+
+    if (base && currency) {
+      base = base.toUpperCase();
+      currency = currency.toUpperCase().split(",");
+      const api = `https://api.exchangeratesapi.io/latest?base=${base}&currency=${currency}`,
+        { data } = await axios.get(api);
+      return res
+        .status(201)
+        .json({ ...data, rates: filterQuery(currency, data.rates) });
     } else {
-      const api = "https://api.exchangeratesapi.io/latest";
-      const { data } = await axios.get(api);
+      const api = "https://api.exchangeratesapi.io/latest",
+        { data } = await axios.get(api);
       return res.status(201).json(data);
     }
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    res.status(400).json({ status: err.code, message: err.message });
   }
 });
 
+//Server
 app.listen(port, () =>
   console.log(`Listening on port http://localhost:${port}`)
 );
