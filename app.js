@@ -10,7 +10,9 @@ app.use(morgan("short"));
 
 // Routes
 app.get("/", (req, res) => {
-  res.send("Hello, Enye BACKEND");
+  res.send(
+    "Hello, Enye BACKEND. Try api/rates or /api/rates?base=CZK&currency=EUR,GBP,USD"
+  );
 });
 
 app.get("/api/rates", async (req, res) => {
