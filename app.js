@@ -3,7 +3,7 @@ import express from "express";
 import morgan from "morgan";
 
 const app = express(),
-  port = process.env.PORT || 8000;
+  PORT = process.env.PORT || 8000;
 
 // Middlewares
 app.use(morgan("short"));
@@ -45,6 +45,6 @@ app.get("/api/rates", async (req, res) => {
 });
 
 //Server
-app.listen(port, () =>
-  console.log(`Listening on port http://localhost:${port}`)
+app.listen(PORT, () =>
+  console.log(`Listening on PORT http://localhost:${PORT}`)
 );
