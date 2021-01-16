@@ -1,12 +1,15 @@
 import axios from "axios";
 import express from "express";
 import morgan from "morgan";
+import cors from "cors";
 
 const app = express(),
   PORT = process.env.PORT || 8000;
 
 // Middlewares
 app.use(morgan("short"));
+app.use(cors());
+app.use(express.json());
 
 // Routes
 app.get("/", (req, res) => {
